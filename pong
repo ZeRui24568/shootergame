@@ -1,0 +1,92 @@
+from pygame import*
+WIN_WIDTH = 700
+WIN_HEIGHT = 500
+class GameSprite(sprite.Sprite):
+    #class constructor
+    def __init__(self, image_file, position, size,speed):
+        #Call for the class (Sprite) constructor:
+        super().__init__()
+    
+        #every sprite must store the image property
+        self.image = image.load(image_file)
+        self.image = transform.scale(self.image,size)
+        self.rect = Rect(position,size)
+        self.speed = Vector2(speed)
+
+    #method drawing the character on the window
+    def draw(self,surface):
+        surface.blit(self.image, self.rect.topleft)
+
+class Player(GameSprite):
+    def update(self):
+        keys = key.get_pressed()
+        if keys[K_a] and self.rect.y > 0:
+            self.rect.y -= self.speed.y
+
+        if keys[K_z] and self.rect.y < WIN_WIDTH - 80:
+            self.rect.y += self.speed.y
+
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > WIN_HEIGHT:
+            self.rect.bottom = WIN_HEIGHT
+class Player2(GameSprite):
+    def update(self):
+        keys = key.get_pressed()
+        if keys[K_UP] and self.rect.y > 0:
+            self.rect.y -= self.speed.y
+
+        if keys[K_DOWN] and self.rect.y < WIN_WIDTH - 80:
+            self.rect.y += self.speed.y
+
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > WIN_HEIGHT:
+            self.rect.bottom = WIN_HEIGHT
+class Ball(GameSprite):
+    def update(self):
+        self.rect.topleft += self.speed
+        
+
+
+
+
+
+P1W= GameSprite(image_file="player1wins.png", position=(0,0),size=(WIN_WIDTH,WIN_HEIGHT),speed=(0,0))
+P2W= GameSprite(image_file="player2wins.png", position=(0,0),size=(WIN_WIDTH,WIN_HEIGHT),speed=(0,0))
+paddle_1 = Player(image_file="paddle.png",position=(20,WIN_HEIGHT/2),size=(30,120),speed=(0,10))
+paddle_2 = Player2(image_file="paddle.png",position=(650,WIN_HEIGHT/2),size=(30,120),speed=(0,10))
+ball = Ball(image_file="balls.png",position=(0,0),size=(20,20),speed=(5,5))
+ball.rect.center = (WIN_WIDTH/2,WIN_HEIGHT/2)
+window = display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+run = True
+clock = time.Clock()
+
+
+while run:
+    for ev in event.get():
+        if ev.type == QUIT:
+            run = False
+    if sprite.collide_rect(ball,paddle_1) or sprite.collide_rect(ball,paddle_2):
+        ball.speed.x *=-1
+    if ball.rect.top <= 0 or ball.rect.bottom >WIN_HEIGHT:
+        ball.speed.y *= -1
+
+
+
+
+
+    window.fill("white")    
+    paddle_1.update()
+    paddle_1.draw(window)
+    paddle_2.update()
+    paddle_2.draw(window)
+    ball.update()
+    ball.draw(window)
+
+    if ball.rect.right >WIN_WIDTH:
+        P2W.draw(window)
+    if ball.rect.left <= 0:
+        P1W.draw(window)
+
+    display.update()
